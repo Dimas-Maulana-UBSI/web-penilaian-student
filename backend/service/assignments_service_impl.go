@@ -3,6 +3,7 @@ package service
 import (
 	"context"
 	"database/sql"
+	"encoding/json"
 	"fmt"
 	"web_penilaian_student/helper"
 	"web_penilaian_student/model/web"
@@ -40,17 +41,17 @@ func (service *AssignmentsServiceImpl) GetAll(ctx context.Context) ([]web.Assign
 	}
 	assingments := []web.AssignmentsResponse{}
 	for _,assingment := range response{
-		fmt.Println(assingment)
 		assingments = append(assingments,helper.ToAssignmentsResponse(assingment))
 	}
 	return assingments,nil
 }
 
-func (service *AssignmentsServiceImpl) Update(ctx context.Context, request web.AssignmentsRequest) (web.AssignmentsResponse, error) {
+func (service *AssignmentsServiceImpl) Update(ctx context.Context, request web.AssignmentsRequest,repo string) (web.AssignmentsResponse, error) {
 	tx, err := service.DB.Begin()
 	if err != nil {
 		return web.AssignmentsResponse{}, err
 	}
+
 	defer func() {
 		if err != nil {
 			tx.Rollback()
@@ -58,7 +59,10 @@ func (service *AssignmentsServiceImpl) Update(ctx context.Context, request web.A
 			tx.Commit()
 		}
 	}()
-	response, err := service.AssignmentsRepository.FindByRepo(ctx, tx, request.Repository_name)
+	jsonData, _ := json.MarshalIndent(request, "", "  ")
+	fmt.Println("REQUEST BODY:", string(jsonData))
+
+	response, err := service.AssignmentsRepository.FindByRepo(ctx, tx, repo)
 	if err != nil {
 		return web.AssignmentsResponse{}, err
 	}
@@ -70,7 +74,7 @@ func (service *AssignmentsServiceImpl) Update(ctx context.Context, request web.A
 	response.Nilai = request.Nilai
 	response.Comment = request.Comment
 	response.Status = request.Status
-
+	response.Requirements = request.Requirements
 
 	updated, err := service.AssignmentsRepository.Update(ctx, tx, request.Repository_name, response)
 	if err != nil {
@@ -79,3 +83,30 @@ func (service *AssignmentsServiceImpl) Update(ctx context.Context, request web.A
 
 	return helper.ToAssignmentsResponse(updated), nil
 }
+
+func (service *AssignmentsServiceImpl) FindByName(ctx context.Context, name string) ([]web.AssignmentsResponse, error) {
+	tx, err := service.DB.Begin()
+	if err != nil {
+		return nil, err
+	}
+	defer func() {
+		if err != nil {
+			tx.Rollback()
+		} else {
+			tx.Commit()
+		}
+	}()
+
+	data, err := service.AssignmentsRepository.FindByName(ctx, tx, name)
+	if err != nil {
+		return nil, err
+	}
+
+	var response []web.AssignmentsResponse
+	for _, d := range data {
+		response = append(response, helper.ToAssignmentsResponse(d))
+	}
+
+	return response, nil
+}
+

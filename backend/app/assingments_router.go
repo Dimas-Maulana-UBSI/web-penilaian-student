@@ -22,5 +22,6 @@ func NewAssignmentsRouter(app *fiber.App, db *sql.DB) {
 
 	// routes
 	app.Get("/assignments", assignmentsController.GetAll)
-	app.Put("/assignments", assignmentsController.Update)
+	app.Put("/assignments/:repository_name", assignmentsController.Update)
+	app.Get("/assignments/name/:name", assignmentsController.FindByName)
 }

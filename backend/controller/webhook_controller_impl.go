@@ -1,7 +1,6 @@
 package controller
 
 import (
-	"fmt"
 	"web_penilaian_student/model/web"
 	"web_penilaian_student/service"
 
@@ -25,8 +24,6 @@ func NewWebHookController(service service.WebHookService) WebHookController {
 }
 
 func (controller *WebHookControllerImpl) HandlePush(ctx *fiber.Ctx) error {
-
-	fmt.Println("tes")
 	request := new(web.Repository)
 	if err := ctx.BodyParser(request); err != nil {
 		return ctx.Status(fiber.StatusBadRequest).JSON(fiber.Map{

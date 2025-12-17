@@ -1,7 +1,6 @@
 package controller
 
 import (
-	"fmt"
 	"web_penilaian_student/model/web"
 	"web_penilaian_student/service"
 
@@ -21,7 +20,6 @@ func NewAuthController(service service.AuthService)AuthController{
 func(controller *AuthControllerImpl)Login(ctx *fiber.Ctx)error{
 	var user web.LoginRequest
 	err := ctx.BodyParser(&user)
-	fmt.Println(user)
 	if err != nil {
 		return ctx.JSON(web.WebResponse{Status: 404,
 		Message: err.Error(),

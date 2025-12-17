@@ -13,4 +13,5 @@ type Assignments struct {
     Comment          string
     Status           string    
     SubmittedAt      time.Time
+    Requirements     interface{}
 }

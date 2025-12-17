@@ -22,7 +22,6 @@ func (repository *AuthRepositoryImpl) GetUser(ctx context.Context,tx *sql.Tx, da
 	}
 	defer row.Close()
 	user := domain.User{}
-	fmt.Println(row)
 	if !row.Next() {
         return domain.User{}, fmt.Errorf("invalid email or password")
     }

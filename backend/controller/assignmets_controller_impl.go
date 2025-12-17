@@ -18,8 +18,8 @@ func NewAssignmentsController(assignmentsService service.AssignmentsService) Ass
 }
 
 // GET /assignments
-func (c *AssignmentsControllerImpl) GetAll(ctx *fiber.Ctx) error {
-	assignments, err := c.AssignmentsService.GetAll(ctx.Context())
+func (controller *AssignmentsControllerImpl) GetAll(ctx *fiber.Ctx) error {
+	assignments, err := controller.AssignmentsService.GetAll(ctx.Context())
 	if err != nil {
 		return ctx.Status(fiber.StatusInternalServerError).JSON(web.WebResponse{
 			Status:  500,
@@ -35,11 +35,13 @@ func (c *AssignmentsControllerImpl) GetAll(ctx *fiber.Ctx) error {
 	})
 }
 
-// PUT /assignments
-func (c *AssignmentsControllerImpl) Update(ctx *fiber.Ctx) error {
+// PUT /assignments/:repository_name
+func (controller *AssignmentsControllerImpl) Update(ctx *fiber.Ctx) error {
+	repoName := ctx.Params("repository_name")
+
 	var request web.AssignmentsRequest
 
-	// Parse body
+	// Parse JSON Body
 	if err := ctx.BodyParser(&request); err != nil {
 		return ctx.Status(fiber.StatusBadRequest).JSON(web.WebResponse{
 			Status:  400,
@@ -48,7 +50,7 @@ func (c *AssignmentsControllerImpl) Update(ctx *fiber.Ctx) error {
 		})
 	}
 
-	result, err := c.AssignmentsService.Update(ctx.Context(), request)
+	result, err := controller.AssignmentsService.Update(ctx.Context(), request,repoName)
 	if err != nil {
 		return ctx.Status(fiber.StatusInternalServerError).JSON(web.WebResponse{
 			Status:  500,
@@ -63,3 +65,30 @@ func (c *AssignmentsControllerImpl) Update(ctx *fiber.Ctx) error {
 		Data:    result,
 	})
 }
+
+func (controller *AssignmentsControllerImpl) FindByName(ctx *fiber.Ctx) error {
+	name := ctx.Params("name")
+	if name == "" {
+		return ctx.Status(fiber.StatusBadRequest).JSON(web.WebResponse{
+			Status:  400,
+			Message: "name parameter is required",
+			Data:    nil,
+		})
+	}
+
+	response, err := controller.AssignmentsService.FindByName(ctx.Context(), name)
+	if err != nil {
+		return ctx.Status(fiber.StatusNotFound).JSON(web.WebResponse{
+			Status:  404,
+			Message: err.Error(),
+			Data:    nil,
+		})
+	}
+
+	return ctx.Status(fiber.StatusOK).JSON(web.WebResponse{
+		Status:  200,
+		Message: "success",
+		Data:    response,
+	})
+}
+

@@ -1,5 +1,10 @@
 package web
 
+type Requirement struct {
+	Name    string `json:"name"`
+	Checked bool   `json:"checked"`
+}
+
 
 type AssignmentsRequest struct {
 	Repository_name string
@@ -11,4 +16,5 @@ type AssignmentsRequest struct {
 	Nilai int
 	Comment string
 	Status string
+	Requirements     []Requirement
 }

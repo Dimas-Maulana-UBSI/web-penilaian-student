@@ -15,7 +15,7 @@ const Login = () => {
   };
 
   const handleLogin = async (e: React.FormEvent) => {
-    e.preventDefault(); // ⛔ stop reload browser
+    e.preventDefault();
 
     const res = await loginUser(data.email, data.password);
 
